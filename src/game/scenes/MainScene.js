@@ -8,6 +8,8 @@ import WhiteHand from "../elements/WhiteHand";
 import Background from "../elements/Background";
 import PlayButton from "../elements/PlayButton";
 
+import Cameras from "../cameras/Cameras";
+
 export default class MainScene extends Phaser.Scene {
 	constructor() {
 		super({
@@ -23,6 +25,7 @@ export default class MainScene extends Phaser.Scene {
 			},
 		});
 		this.stageIndex = 0;
+		this.cameraClass = new Cameras();
 
 		this.background = new Background();
 		this.logo = new Logo();
@@ -55,40 +58,17 @@ export default class MainScene extends Phaser.Scene {
 		this.whiteHand.setNextButton(this.nextButton.button);
 		this.whiteHand.resetIdleTimers();
 
-		this.addUiCamera();
-
-		this.addEvents();
-
-		this.scale.on("resize", this.onResize, this);
-		this.background.onResize(this.scale.gameSize);
-	}
-
-	addUiCamera() {
-		this.uiCamera = this.cameras.add(
-			0,
-			0,
-			this.scale.width,
-			this.scale.height
-		);
-
-		this.cameras.main.ignore([
+		this.cameraClass.addUICamera(this, [
 			this.logo.logo,
 			this.playButton.button,
 			this.nextButton.button,
 			this.nextButton.geometry,
 		]);
 
-		this.uiCamera.ignore(
-			this.children.list.filter(
-				(obj) =>
-					![
-						this.logo.logo,
-						this.playButton.button,
-						this.nextButton.button,
-						this.nextButton.geometry,
-					].includes(obj)
-			)
-		);
+		this.addEvents();
+
+		this.scale.on("resize", this.onResize, this);
+		this.background.onResize(this.scale.gameSize);
 	}
 
 	addEvents() {
@@ -98,6 +78,9 @@ export default class MainScene extends Phaser.Scene {
 		this.events.on("reset-idle-timers", () => {
 			this.whiteHand.resetIdleTimers();
 		});
+		this.events.on("new-object", (obj) => {
+			this.cameraClass.addWorldObject(obj);
+		});
 	}
 
 	changeStage() {
@@ -105,18 +88,15 @@ export default class MainScene extends Phaser.Scene {
 
 		switch (this.stageIndex) {
 			case 1:
-				console.log("1");
 				this.math3stage.createStage(this);
 				break;
 
 			case 2:
-				console.log("2");
 				this.math3stage.destroy();
 				this.spineObjectStage.createStage(this);
 				break;
 
 			default:
-				console.log("Конец стадий");
 				this.spineObjectStage.startFireworkAnimation();
 				break;
 		}

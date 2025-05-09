@@ -1,5 +1,18 @@
+import Match3Grid from "./match3/Match3Grid";
+import Match3Board from "./match3/Match3Board";
+import Match3InteractionManager from "./match3/Match3InteractionManager";
+
 export default class Match3Stage {
-	constructor() {}
+	constructor() {
+		this.grid = new Match3Grid(7, 7, [
+			{ x: 0, y: 3 },
+			{ x: 3, y: 0 },
+			{ x: 6, y: 3 },
+			{ x: 3, y: 6 },
+		]);
+		this.board = new Match3Board(7, 7);
+		this.interactionManager = new Match3InteractionManager(7, 7);
+	}
 
 	bindVars(scene) {
 		this.scene = scene;
@@ -8,60 +21,79 @@ export default class Match3Stage {
 		this.cameras = scene.cameras;
 		this.scale = scene.scale;
 		this.sound = scene.sound;
+		this.events = scene.events;
 	}
 
 	preload(scene) {
 		this.bindVars(scene);
+
 		this.load.image("field", "/assets/img/field_1_vertical.png");
 		this.load.audio("cameraSound", "/assets/sound/camera56.mp3");
-	}
 
-	addWorldObject(obj) {
-		const uiCamera = this.cameras.cameras[1];
-		uiCamera && uiCamera.ignore(obj);
-		return obj;
-	}
-
-	createWhiteHandAnimation() {
-		const frames = [];
-		for (let i = 0; i <= this.whiteHandFrames; i++) {
-			const index = i.toString().padStart(5, "0");
-			frames.push({ key: `whiteHand_${index}` });
-		}
-
-		this.anims.create({
-			key: "whiteHand",
-			frames,
-			frameRate: 15,
-			repeat: 0,
-		});
+		this.board.preload(scene);
 	}
 
 	createStage(scene) {
-		console.log("create");
 		this.bindVars(scene);
 
-		this.container = this.add.container();
-		this.field = this.addWorldObject(
-			this.scene.add.image(
-				this.scale.width / 2,
-				this.scale.height / 2,
-				"field"
-			)
+		this.group = this.add.group();
+
+		this.field = this.scene.add.image(
+			this.scale.width / 2,
+			this.scale.height / 2,
+			"field"
 		);
-		this.container.add(this.field);
+		this.events.emit("new-object", this.field);
+		this.group.add(this.field);
+
+		this.grid.bindVars(scene);
+
+		const cellSizeX = (this.field.width - 2) / 7;
+		const cellSizeY = (this.field.height - 2) / 7;
+		this.board.create(
+			this.grid.grid,
+			this.group,
+			this.field,
+			cellSizeX,
+			cellSizeY
+		);
 
 		this.sound.play("cameraSound", { volume: 1 });
 		this.cameras.main.zoomTo(1.5, 1000);
+
+		this.interactionManager.enableInput(
+			this.scene,
+			this.grid.grid,
+			this.board.chipSprites
+		);
+
+		this.addEvents();
+	}
+
+	addEvents() {
+		this.events.on("grid-swap", (from, to) => {
+			this.grid.swap(from, to);
+			this.board.swap(from, to);
+		});
+		this.events.on("update-grid", (grid) => {
+			this.interactionManager.grid = grid;
+		});
+		this.events.on("update-sprites", (sprites) => {
+			this.interactionManager.chipSprites = sprites;
+		});
+		this.events.on("check-match", () => {
+			this.grid.checkMatch();
+		});
 	}
 
 	onResize() {
 		if (this.field) {
 			this.field.setPosition(this.scale.width / 2, this.scale.height / 2);
+			this.board.onResize();
 		}
 	}
 
 	destroy() {
-		this.container.destroy(true);
+		this.group.destroy(true);
 	}
 }

@@ -15,6 +15,7 @@ export default class SpineObjectStage {
 		this.time = scene.time;
 		this.load = scene.load;
 		this.sound = scene.sound;
+		this.events = scene.events;
 	}
 
 	preload(scene) {
@@ -39,27 +40,20 @@ export default class SpineObjectStage {
 		this.load.audio("fineSound", "/assets/sound/fine56.mp3");
 	}
 
-	addWorldObject(obj) {
-		const uiCamera = this.cameras.cameras[1];
-		uiCamera && uiCamera.ignore(obj);
-		return obj;
-	}
-
 	createStage(scene) {
 		this.bindVars(scene);
 
 		this.sound.play("fineSound", { volume: 1 });
 
-		this.spineObject = this.addWorldObject(
-			this.add.spine(
-				this.scale.width / 2,
-				this.scale.height / 2 + 150,
-				"greengirl",
-				"animation",
-				true
-			)
+		this.spineObject = this.add.spine(
+			this.scale.width / 2,
+			this.scale.height / 2 + 150,
+			"greengirl",
+			"animation",
+			true
 		);
 		this.spineObject.setScale(0.3);
+		this.events.emit("new-object", this.spineObject);
 	}
 
 	createFireworkAnimation() {
@@ -90,10 +84,10 @@ export default class SpineObjectStage {
 
 		const scale = Phaser.Math.FloatBetween(0.4, 0.7);
 
-		const sprite = this.addWorldObject(
-			this.scene.add.sprite(x, y, "firework")
-		);
+		const sprite = this.scene.add.sprite(x, y, "firework");
+
 		sprite.setScale(scale);
+		this.events.emit("new-object", sprite);
 		sprite.play({ key: "fireworksAnimation", hideOnComplete: true });
 		this.sound.play("fireworkSound", { volume: 1 });
 		sprite.on("animationcomplete", () => {
