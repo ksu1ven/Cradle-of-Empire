@@ -1,0 +1,30 @@
+@font-face {
+	font-family: "Raleway";
+	src: url("/assets/fonts/Raleway-SemiBold.woff2") format("woff2"),
+		url("/assets/fonts/Raleway-SemiBold.woff") format("woff");
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	color: rgba(255, 255, 255, 0.87);
+	background-color: #000000;
+}
+
+#app {
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+canvas {
+	margin-left: 0 !important;
+	width: 100vw !important;
+	height: 100vh !important;
+}
