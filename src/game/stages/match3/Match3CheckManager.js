@@ -35,10 +35,13 @@ export default class Match3CheckManager {
 		);
 	}
 
-	sameType(a, b) {
-		const chipA = this.grid[a.y][a.x];
-		const chipB = this.grid[b.y][b.x];
-		return chipA && chipB && chipA.type === chipB.type;
+	sameType(pos1, pos2) {
+		const a = this.grid[pos1.y]?.[pos1.x];
+		const b = this.grid[pos2.y]?.[pos2.x];
+		if (!a || !b) return false;
+		if (!a.type || !b.type) return false;
+		if (a.disabled || b.disabled) return false;
+		return a.type === b.type;
 	}
 
 	findLocalMatches(pos) {
@@ -81,6 +84,28 @@ export default class Match3CheckManager {
 			...this.findLocalMatches(from),
 			...this.findLocalMatches(to),
 		];
+
+		return matched;
+	}
+
+	checkAllMatches() {
+		const matched = [];
+		const visited = new Set();
+
+		for (let y = 0; y < this.grid.length; y++) {
+			for (let x = 0; x < this.grid[0].length; x++) {
+				const pos = { x, y };
+				const localMatches = this.findLocalMatches(pos);
+
+				for (const match of localMatches) {
+					const key = `${match.x},${match.y}`;
+					if (!visited.has(key)) {
+						visited.add(key);
+						matched.push(match);
+					}
+				}
+			}
+		}
 
 		return matched;
 	}

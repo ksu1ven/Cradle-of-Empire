@@ -15,10 +15,14 @@ export default class Match3ChangeManager {
 		this.tweens = scene.tweens;
 	}
 
-	create(scene, grid, chipSprites) {
+	create(scene, grid, group, board, cellSizeX, cellSizeY) {
 		this.bindVars(scene);
 		this.grid = grid;
-		this.chipSprites = chipSprites;
+		this.group = group;
+		this.board = board;
+		this.boardBounds = board.getBounds();
+		this.cellSizeX = cellSizeX;
+		this.cellSizeY = cellSizeY;
 
 		this.addEvents();
 	}
@@ -49,6 +53,12 @@ export default class Match3ChangeManager {
 			const [x, y] = key.split(",").map(Number);
 			return { x, y };
 		});
+	}
+
+	getRandomType() {
+		const types = ["blue", "green", "pink", "red", "yellow"];
+
+		return types[Math.floor(Math.random() * types.length)];
 	}
 
 	dropChips() {
@@ -90,9 +100,44 @@ export default class Match3ChangeManager {
 					writeY--;
 				}
 			}
+
+			for (let y = writeY; y >= 0; y--) {
+				if (!this.grid[y][x] || this.grid[y][x].disabled) continue;
+
+				const type = this.getRandomType();
+				this.grid[y][x].type = type;
+
+				const startY = this.grid[0][x]?.disabled ? 1 : 0;
+
+				const chip = {
+					type: `ch_${type}`,
+					x:
+						x * this.cellSizeX +
+						this.boardBounds.x +
+						this.cellSizeX / 2,
+					y:
+						this.boardBounds.y +
+						startY * this.cellSizeY +
+						this.cellSizeY / 2,
+					targetY:
+						this.boardBounds.y +
+						y * this.cellSizeY +
+						this.cellSizeY / 2,
+					scale: 0.8,
+					depth: 2,
+					new: true,
+				};
+
+				drops.push({
+					sprite: chip,
+					from: { x, y: startY },
+					to: { x, y },
+				});
+			}
 		}
 
 		this.events.emit("update-grid", this.grid);
+
 		return drops;
 	}
 }

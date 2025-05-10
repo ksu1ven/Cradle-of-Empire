@@ -28,7 +28,8 @@ export default class Match3Board {
 		this.load.audio("matchSound", "/assets/sound/match56.mp3");
 	}
 
-	create(grid, group, board, cellSizeX, cellSizeY) {
+	create(scene, grid, group, board, cellSizeX, cellSizeY) {
+		this.bindVars(scene);
 		this.grid = grid;
 		this.group = group;
 		this.board = board;

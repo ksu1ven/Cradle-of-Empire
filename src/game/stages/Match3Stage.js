@@ -58,6 +58,7 @@ export default class Match3Stage {
 		const cellSizeX = (this.field.width - 2) / 7;
 		const cellSizeY = (this.field.height - 2) / 7;
 		this.board.create(
+			this.scene,
 			this.grid.grid,
 			this.group,
 			this.field,
@@ -83,7 +84,10 @@ export default class Match3Stage {
 		this.changeManager.create(
 			this.scene,
 			this.grid.grid,
-			this.board.chipSprites
+			this.group,
+			this.field,
+			cellSizeX,
+			cellSizeY
 		);
 
 		this.addEvents();
@@ -119,6 +123,16 @@ export default class Match3Stage {
 						"update-sprites",
 						this.animationManager.chipSprites
 					);
+
+					this.time.delayedCall(50, () => {
+						const newMatches = this.checkManager.checkAllMatches();
+						if (newMatches.length) {
+							this.board.playSound(true);
+							const removed =
+								this.changeManager.removeMatches(newMatches);
+							this.animationManager.removeChips(removed);
+						}
+					});
 
 					this.events.emit("update-animation", false);
 				});

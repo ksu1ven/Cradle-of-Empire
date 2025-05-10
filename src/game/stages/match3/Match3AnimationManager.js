@@ -58,28 +58,47 @@ export default class Match3AnimationManager {
 		});
 	}
 
-	animateDrop(drops) {
-		const promises = [];
+	async animateDrop(drops) {
+		const oldChips = drops.filter(({ sprite }) => sprite && !sprite.new);
 
-		drops.forEach(({ sprite, from, to }) => {
-			if (!sprite) return;
+		const newChips = drops.filter(({ sprite }) => sprite && sprite.new);
 
-			const distance = (to.y - from.y) * this.cellSizeY;
+		const animateGroup = (group) => {
+			const groupPromises = [];
 
-			const promise = new Promise((resolve) => {
-				this.scene.tweens.add({
-					targets: sprite,
-					y: sprite.y + distance,
-					duration: 200,
-					ease: "Cubic.easeIn",
-					onComplete: () => resolve(),
+			group.forEach(({ sprite, from, to }) => {
+				if (sprite.new) {
+					const chip = this.scene.add
+						.image(sprite.x, sprite.y, sprite.type)
+						.setScale(sprite.scale)
+						.setDepth(sprite.depth)
+						.setInteractive({ useHandCursor: true });
+
+					this.events.emit("new-object", chip);
+					this.chipSprites[to.y][to.x] = chip;
+
+					sprite = chip;
+				}
+
+				const distance = (to.y - from.y) * this.cellSizeY;
+
+				const promise = new Promise((resolve) => {
+					this.scene.tweens.add({
+						targets: sprite,
+						y: sprite.new ? sprite.targetY : sprite.y + distance,
+						duration: 200,
+						ease: "Cubic.easeIn",
+						onComplete: () => resolve(),
+					});
 				});
+
+				groupPromises.push(promise);
 			});
 
-			promises.push(promise);
-		});
+			return Promise.all(groupPromises);
+		};
 
-		return Promise.all(promises);
+		return animateGroup(oldChips).then(() => animateGroup(newChips));
 	}
 
 	animateSwap(from, to, options) {
