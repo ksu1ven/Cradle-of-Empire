@@ -12,10 +12,11 @@ export default class Match3AnimationManager {
 		this.tweens = scene.tweens;
 	}
 
-	create(scene, chipSprites, cellSizeX, cellSizeY) {
+	create(scene, chipSprites, group, cellSizeX, cellSizeY) {
 		this.bindVars(scene);
 
 		this.chipSprites = chipSprites;
+		this.group = group;
 		this.cellSizeX = cellSizeX;
 		this.cellSizeY = cellSizeY;
 	}
@@ -75,6 +76,7 @@ export default class Match3AnimationManager {
 						.setInteractive({ useHandCursor: true });
 
 					this.events.emit("new-object", chip);
+					this.group.add(chip);
 					this.chipSprites[to.y][to.x] = chip;
 
 					sprite = chip;

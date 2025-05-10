@@ -77,6 +77,7 @@ export default class Match3Stage {
 		this.animationManager.create(
 			this.scene,
 			this.board.chipSprites,
+			this.group,
 			cellSizeX,
 			cellSizeY
 		);
@@ -84,7 +85,6 @@ export default class Match3Stage {
 		this.changeManager.create(
 			this.scene,
 			this.grid.grid,
-			this.group,
 			this.field,
 			cellSizeX,
 			cellSizeY

@@ -15,10 +15,9 @@ export default class Match3ChangeManager {
 		this.tweens = scene.tweens;
 	}
 
-	create(scene, grid, group, board, cellSizeX, cellSizeY) {
+	create(scene, grid, board, cellSizeX, cellSizeY) {
 		this.bindVars(scene);
 		this.grid = grid;
-		this.group = group;
 		this.board = board;
 		this.boardBounds = board.getBounds();
 		this.cellSizeX = cellSizeX;
