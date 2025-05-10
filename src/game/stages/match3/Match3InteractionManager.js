@@ -3,6 +3,7 @@ export default class Match3InteractionManager {
 		this.rows = rows;
 		this.cols = cols;
 		this.selected = null;
+		this.isAnimating = false;
 	}
 
 	bindVars(scene) {
@@ -16,7 +17,7 @@ export default class Match3InteractionManager {
 		this.tweens = scene.tweens;
 	}
 
-	enableInput(scene, grid, chipSprites) {
+	create(scene, grid, chipSprites) {
 		this.bindVars(scene);
 		this.grid = grid;
 		this.chipSprites = chipSprites;
@@ -46,11 +47,14 @@ export default class Match3InteractionManager {
 	}
 
 	addEvents() {
-		this.events.on("match-fail", () => {
-			setTimeout(() => {
-				this.animateSwap(this.to, this.from);
-				this.events.emit("grid-swap", this.to, this.from);
-			}, 500);
+		this.events.on("update-grid", (grid) => {
+			this.grid = grid;
+		});
+		this.events.on("update-sprites", (sprites) => {
+			this.chipSprites = sprites;
+		});
+		this.events.on("update-animation", (isAnimating) => {
+			this.isAnimating = isAnimating;
 		});
 	}
 
@@ -67,6 +71,7 @@ export default class Match3InteractionManager {
 	}
 
 	trySwap(direction) {
+		if (this.isAnimating) return;
 		this.from = this.selected;
 		this.to = {
 			x: this.from.x + direction.x,
@@ -84,29 +89,11 @@ export default class Match3InteractionManager {
 			return;
 		}
 
+		this.isAnimating = true;
+
 		this.events.emit("grid-swap", this.from, this.to);
-		this.events.emit("check-match");
 
-		this.animateSwap(this.from, this.to);
 		this.reset();
-	}
-
-	animateSwap(from, to) {
-		const a = this.chipSprites[from.y][from.x];
-		const b = this.chipSprites[to.y][to.x];
-
-		this.tweens.add({
-			targets: a,
-			x: b.x,
-			y: b.y,
-			duration: 500,
-		});
-		this.tweens.add({
-			targets: b,
-			x: a.x,
-			y: a.y,
-			duration: 500,
-		});
 	}
 
 	reset() {

@@ -80,6 +80,7 @@ export default class Match3Grid {
 	}
 
 	swap(from, to) {
+		console.log(from, to);
 		const fromCell = this.grid[from.y]?.[from.x];
 		const toCell = this.grid[to.y]?.[to.x];
 
@@ -93,11 +94,7 @@ export default class Match3Grid {
 		this.events.emit("update-sprites", this.grid);
 	}
 
-	checkMatch() {
-		const result = false;
-
-		if (!result) {
-			setTimeout(this.events.emit("match-fail"));
-		}
+	checkMatch(from, to) {
+		return false;
 	}
 }

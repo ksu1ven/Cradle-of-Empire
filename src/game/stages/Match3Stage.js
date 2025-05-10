@@ -1,6 +1,7 @@
 import Match3Grid from "./match3/Match3Grid";
 import Match3Board from "./match3/Match3Board";
 import Match3InteractionManager from "./match3/Match3InteractionManager";
+import Match3AnimationManager from "./match3/Match3AnimationManager";
 
 export default class Match3Stage {
 	constructor() {
@@ -12,6 +13,7 @@ export default class Match3Stage {
 		]);
 		this.board = new Match3Board(7, 7);
 		this.interactionManager = new Match3InteractionManager(7, 7);
+		this.animationManager = new Match3AnimationManager();
 	}
 
 	bindVars(scene) {
@@ -61,11 +63,12 @@ export default class Match3Stage {
 		this.sound.play("cameraSound", { volume: 1 });
 		this.cameras.main.zoomTo(1.5, 1000);
 
-		this.interactionManager.enableInput(
+		this.interactionManager.create(
 			this.scene,
 			this.grid.grid,
 			this.board.chipSprites
 		);
+		this.animationManager.create(this.scene, this.board.chipSprites);
 
 		this.addEvents();
 	}
@@ -73,16 +76,14 @@ export default class Match3Stage {
 	addEvents() {
 		this.events.on("grid-swap", (from, to) => {
 			this.grid.swap(from, to);
-			this.board.swap(from, to);
+			this.animationManager.animateSwap(from, to, { check: true });
 		});
-		this.events.on("update-grid", (grid) => {
-			this.interactionManager.grid = grid;
-		});
-		this.events.on("update-sprites", (sprites) => {
-			this.interactionManager.chipSprites = sprites;
-		});
-		this.events.on("check-match", () => {
-			this.grid.checkMatch();
+
+		this.events.on("check-match", ({ from, to }) => {
+			if (!this.grid.checkMatch(from, to)) {
+				this.grid.swap(to, from);
+				this.animationManager.animateSwap(to, from, { check: false });
+			}
 		});
 	}
 

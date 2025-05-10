@@ -71,6 +71,9 @@ export default class Match3Board {
 	}
 
 	addEvents() {
+		this.events.on("update-sprites", (sprites) => {
+			this.chipSprites = sprites;
+		});
 		this.events.on("match-fail", () => {
 			setTimeout(() => {
 				this.sound.play("failSound", {
@@ -78,18 +81,6 @@ export default class Match3Board {
 				});
 			}, 250);
 		});
-	}
-
-	swap(from, to) {
-		const fromSprite = this.chipSprites[from.y]?.[from.x];
-		const toSprite = this.chipSprites[to.y]?.[to.x];
-
-		if (!fromSprite || !toSprite) return;
-
-		this.chipSprites[from.y][from.x] = toSprite;
-		this.chipSprites[to.y][to.x] = fromSprite;
-
-		this.events.emit("update-sprites", this.chipSprites);
 	}
 
 	getCell(x, y) {
