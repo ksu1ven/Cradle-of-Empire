@@ -12,9 +12,12 @@ export default class Match3AnimationManager {
 		this.tweens = scene.tweens;
 	}
 
-	create(scene, chipSprites) {
+	create(scene, chipSprites, cellSizeX, cellSizeY) {
 		this.bindVars(scene);
+
 		this.chipSprites = chipSprites;
+		this.cellSizeX = cellSizeX;
+		this.cellSizeY = cellSizeY;
 	}
 
 	addEvents() {
@@ -27,6 +30,56 @@ export default class Match3AnimationManager {
 				this.events.emit("grid-swap", this.to, this.from);
 			}, 500);
 		});
+	}
+
+	removeChips(positions) {
+		let completed = 0;
+
+		positions.forEach(({ x, y }) => {
+			const sprite = this.chipSprites[y][x];
+
+			if (sprite) {
+				this.scene.tweens.add({
+					targets: sprite,
+					alpha: 0,
+					duration: 300,
+					onComplete: () => {
+						sprite.destroy();
+						this.chipSprites[y][x] = null;
+
+						completed++;
+
+						if (completed === positions.length) {
+							this.events.emit("chips-removed", this.chipSprites);
+						}
+					},
+				});
+			}
+		});
+	}
+
+	animateDrop(drops) {
+		const promises = [];
+
+		drops.forEach(({ sprite, from, to }) => {
+			if (!sprite) return;
+
+			const distance = (to.y - from.y) * this.cellSizeY;
+
+			const promise = new Promise((resolve) => {
+				this.scene.tweens.add({
+					targets: sprite,
+					y: sprite.y + distance,
+					duration: 200,
+					ease: "Cubic.easeIn",
+					onComplete: () => resolve(),
+				});
+			});
+
+			promises.push(promise);
+		});
+
+		return Promise.all(promises);
 	}
 
 	animateSwap(from, to, options) {

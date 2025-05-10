@@ -17,15 +17,14 @@ export default class Match3InteractionManager {
 		this.tweens = scene.tweens;
 	}
 
-	create(scene, grid, chipSprites) {
-		this.bindVars(scene);
-		this.grid = grid;
-		this.chipSprites = chipSprites;
-
+	registerPointerEvents() {
 		for (let y = 0; y < this.rows; y++) {
 			for (let x = 0; x < this.cols; x++) {
 				const sprite = this.chipSprites[y][x];
 				if (!sprite || this.grid[y][x].disabled) continue;
+
+				sprite.off("pointerdown");
+				sprite.off("pointerup");
 
 				sprite.on("pointerdown", (pointer) => {
 					this.startPos = { x: pointer.x, y: pointer.y };
@@ -42,6 +41,14 @@ export default class Match3InteractionManager {
 				});
 			}
 		}
+	}
+
+	create(scene, grid, chipSprites) {
+		this.bindVars(scene);
+		this.grid = grid;
+		this.chipSprites = chipSprites;
+
+		this.registerPointerEvents();
 
 		this.addEvents();
 	}
@@ -52,6 +59,7 @@ export default class Match3InteractionManager {
 		});
 		this.events.on("update-sprites", (sprites) => {
 			this.chipSprites = sprites;
+			this.registerPointerEvents();
 		});
 		this.events.on("update-animation", (isAnimating) => {
 			this.isAnimating = isAnimating;

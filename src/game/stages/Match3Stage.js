@@ -2,6 +2,8 @@ import Match3Grid from "./match3/Match3Grid";
 import Match3Board from "./match3/Match3Board";
 import Match3InteractionManager from "./match3/Match3InteractionManager";
 import Match3AnimationManager from "./match3/Match3AnimationManager";
+import Match3CheckManager from "./match3/Match3CheckManager";
+import Match3ChangeManager from "./match3/Match3ChangeManager";
 
 export default class Match3Stage {
 	constructor() {
@@ -14,6 +16,8 @@ export default class Match3Stage {
 		this.board = new Match3Board(7, 7);
 		this.interactionManager = new Match3InteractionManager(7, 7);
 		this.animationManager = new Match3AnimationManager();
+		this.checkManager = new Match3CheckManager();
+		this.changeManager = new Match3ChangeManager(7, 7);
 	}
 
 	bindVars(scene) {
@@ -24,6 +28,7 @@ export default class Match3Stage {
 		this.scale = scene.scale;
 		this.sound = scene.sound;
 		this.events = scene.events;
+		this.time = scene.time;
 	}
 
 	preload(scene) {
@@ -48,7 +53,7 @@ export default class Match3Stage {
 		this.events.emit("new-object", this.field);
 		this.group.add(this.field);
 
-		this.grid.bindVars(scene);
+		this.grid.create(scene);
 
 		const cellSizeX = (this.field.width - 2) / 7;
 		const cellSizeY = (this.field.height - 2) / 7;
@@ -68,7 +73,18 @@ export default class Match3Stage {
 			this.grid.grid,
 			this.board.chipSprites
 		);
-		this.animationManager.create(this.scene, this.board.chipSprites);
+		this.animationManager.create(
+			this.scene,
+			this.board.chipSprites,
+			cellSizeX,
+			cellSizeY
+		);
+		this.checkManager.create(this.scene, this.grid.grid);
+		this.changeManager.create(
+			this.scene,
+			this.grid.grid,
+			this.board.chipSprites
+		);
 
 		this.addEvents();
 	}
@@ -80,10 +96,33 @@ export default class Match3Stage {
 		});
 
 		this.events.on("check-match", ({ from, to }) => {
-			if (!this.grid.checkMatch(from, to)) {
+			const matched = this.checkManager.checkMatch(from, to);
+			if (matched.length) {
+				this.board.playSound(true);
+				const removed = this.changeManager.removeMatches(matched);
+				this.animationManager.removeChips(removed);
+			} else {
+				this.board.playSound(false);
 				this.grid.swap(to, from);
 				this.animationManager.animateSwap(to, from, { check: false });
 			}
+		});
+
+		this.events.on("chips-removed", (chipSprites) => {
+			this.events.emit("update-sprites", chipSprites);
+
+			this.time.delayedCall(50, () => {
+				const drops = this.changeManager.dropChips();
+
+				this.animationManager.animateDrop(drops).then(() => {
+					this.events.emit(
+						"update-sprites",
+						this.animationManager.chipSprites
+					);
+
+					this.events.emit("update-animation", false);
+				});
+			});
 		});
 	}
 

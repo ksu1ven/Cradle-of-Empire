@@ -25,6 +25,7 @@ export default class Match3Board {
 		this.load.image(`ch_yellow`, "/assets/img/ch_yellow.png");
 
 		this.load.audio("failSound", "/assets/sound/mistake56.mp3");
+		this.load.audio("matchSound", "/assets/sound/match56.mp3");
 	}
 
 	create(grid, group, board, cellSizeX, cellSizeY) {
@@ -74,13 +75,14 @@ export default class Match3Board {
 		this.events.on("update-sprites", (sprites) => {
 			this.chipSprites = sprites;
 		});
-		this.events.on("match-fail", () => {
-			setTimeout(() => {
-				this.sound.play("failSound", {
-					volume: 1,
-				});
-			}, 250);
-		});
+	}
+
+	playSound(match) {
+		setTimeout(() => {
+			this.sound.play(match ? "matchSound" : "failSound", {
+				volume: 1,
+			});
+		}, 250);
 	}
 
 	getCell(x, y) {

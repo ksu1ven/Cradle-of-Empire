@@ -6,7 +6,6 @@ export default class Match3Grid {
 		this.grid = [];
 
 		this.disabledMap = this.getDisabledMap();
-		this.create();
 	}
 
 	bindVars(scene) {
@@ -37,7 +36,9 @@ export default class Match3Grid {
 		return map;
 	}
 
-	create() {
+	create(scene) {
+		this.bindVars(scene);
+
 		for (let y = 0; y < this.rows; y++) {
 			const row = [];
 			for (let x = 0; x < this.cols; x++) {
@@ -57,6 +58,14 @@ export default class Match3Grid {
 			}
 			this.grid.push(row);
 		}
+
+		this.addEvents();
+	}
+
+	addEvents() {
+		this.events.on("update-grid", (grid) => {
+			this.grid = grid;
+		});
 	}
 
 	getSafeRandomType(x, y, currentRow) {
@@ -80,7 +89,6 @@ export default class Match3Grid {
 	}
 
 	swap(from, to) {
-		console.log(from, to);
 		const fromCell = this.grid[from.y]?.[from.x];
 		const toCell = this.grid[to.y]?.[to.x];
 
@@ -91,10 +99,6 @@ export default class Match3Grid {
 		fromCell.type = toCell.type;
 		toCell.type = tempType;
 
-		this.events.emit("update-sprites", this.grid);
-	}
-
-	checkMatch(from, to) {
-		return false;
+		this.events.emit("update-grid", this.grid);
 	}
 }
