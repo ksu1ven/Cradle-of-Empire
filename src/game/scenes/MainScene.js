@@ -19,7 +19,7 @@ export default class MainScene extends Phaser.Scene {
 					{
 						type: "scenePlugin",
 						key: "SpinePlugin",
-						url: "https://cdn.phaserfiles.com/v385/plugins/spine4.1/SpinePluginDebug.js",
+						url: "/plugins/SpinePlugin.js",
 						sceneKey: "spine",
 					},
 				],
@@ -37,6 +37,8 @@ export default class MainScene extends Phaser.Scene {
 
 		this.math3stage = new Match3Stage();
 		this.spineObjectStage = new SpineObjectStage();
+
+		this.loadedStages = 0;
 	}
 
 	preload() {
@@ -50,16 +52,20 @@ export default class MainScene extends Phaser.Scene {
 
 		this.load.once("complete", () => {
 			this.math3stage.preload(this);
+			this.loadedStages = 1;
 			console.log("common-assets-loaded");
+
 			this.load.start();
 
 			this.load.once("complete", () => {
 				console.log("match-3-loaded");
+				this.loadedStages = 2;
 				this.spineObjectStage.preload(this);
 				this.load.start();
 
 				this.load.on("complete", () => {
 					console.log("spin-loaded");
+					this.loadedStages = 3;
 					if (typeof window.playableLoaded === "function") {
 						window.playableLoaded();
 					}
@@ -107,20 +113,38 @@ export default class MainScene extends Phaser.Scene {
 	}
 
 	changeStage() {
-		this.stageIndex += 1;
-
 		switch (this.stageIndex) {
-			case 1:
-				this.math3stage.createStage(this);
+			case 0:
+				if (this.loadedStages >= 2) {
+					this.nextButton.hideWithFade();
+					this.stageIndex += 1;
+					this.math3stage.createStage(this);
+					this.time.delayedCall(1500, () => {
+						this.nextButton.showWithFade();
+					});
+				}
+
 				break;
 
-			case 2:
-				this.math3stage.destroy();
-				this.spineObjectStage.createStage(this);
+			case 1:
+				if (this.loadedStages === 3) {
+					this.nextButton.hideWithFade();
+					this.stageIndex += 1;
+					this.math3stage.destroy();
+					this.spineObjectStage.createStage(this);
+					this.time.delayedCall(1500, () => {
+						this.nextButton.showWithFade();
+					});
+				}
+
 				break;
 
 			default:
+				this.nextButton.hideWithFade();
 				this.spineObjectStage.startFireworkAnimation();
+				this.time.delayedCall(3000, () => {
+					this.nextButton.showWithFade();
+				});
 				break;
 		}
 	}

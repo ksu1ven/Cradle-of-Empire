@@ -12,6 +12,7 @@ export default class NextButton {
 		this.sound = scene.sound;
 		this.events = scene.events;
 		this.input = scene.input;
+		this.tweens = scene.tweens;
 	}
 
 	preload(scene) {
@@ -63,6 +64,38 @@ export default class NextButton {
 		this.buttonGroup.setXY(this.scale.width - 350, this.scale.height - 200);
 
 		this.addEvents();
+	}
+
+	hideWithFade(duration = 300) {
+		if (!this.buttonGroup) return;
+
+		this.tweens.add({
+			targets: [this.geometry, this.button],
+			alpha: 0,
+			duration,
+			ease: "Power1",
+			onComplete: () => {
+				this.geometry.setVisible(false);
+				this.button.setVisible(false);
+			},
+		});
+	}
+
+	showWithFade(duration = 300) {
+		if (!this.buttonGroup) return;
+
+		this.geometry.setVisible(true);
+		this.button.setVisible(true);
+
+		this.geometry.alpha = 0;
+		this.button.alpha = 0;
+
+		this.tweens.add({
+			targets: [this.geometry, this.button],
+			alpha: 1,
+			duration,
+			ease: "Power1",
+		});
 	}
 
 	addEvents() {
