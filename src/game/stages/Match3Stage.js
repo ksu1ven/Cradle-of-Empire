@@ -33,7 +33,6 @@ export default class Match3Stage {
 		this.load = scene.load;
 		this.add = scene.add;
 		this.cameras = scene.cameras;
-		this.scale = scene.scale;
 		this.sound = scene.sound;
 		this.events = scene.events;
 		this.time = scene.time;
@@ -54,28 +53,23 @@ export default class Match3Stage {
 	createStage(scene) {
 		this.bindVars(scene);
 
+		this.sound.play("cameraSound", { volume: 1 });
+		this.cameras.main.zoomTo(1.5, 1000);
+
 		this.group = this.add.group();
 
 		this.field.create(scene, this.group);
 
 		this.grid.create(scene);
 
-		const cellSizeX =
-			(this.field.field.width * this.field.finalScale - 2) / 7;
-		const cellSizeY =
-			(this.field.field.height * this.field.finalScale - 2) / 7;
-
 		this.board.create(
 			this.scene,
 			this.grid.grid,
 			this.group,
 			this.field.field,
-			cellSizeX,
-			cellSizeY
+			this.field.cellSizeX,
+			this.field.cellSizeY
 		);
-
-		this.sound.play("cameraSound", { volume: 1 });
-		this.cameras.main.zoomTo(1.5, 1000);
 
 		this.interactionManager.create(
 			this.scene,
@@ -87,19 +81,19 @@ export default class Match3Stage {
 			this.field.field,
 			this.board.chipSprites,
 			this.group,
-			cellSizeX,
-			cellSizeY
+			this.field.cellSizeX,
+			this.field.cellSizeY
 		);
 		this.checkManager.create(this.scene, this.grid.grid);
 		this.dropManager.create(
 			this.scene,
 			this.grid.grid,
 			this.field.field,
-			cellSizeX,
-			cellSizeY
+			this.field.cellSizeX,
+			this.field.cellSizeY
 		);
 		this.score.create(this.scene, this.field.field);
-		this.story.create(this.scene);
+		this.story.create(this.scene, this.field.field);
 
 		this.addEvents();
 	}
@@ -152,19 +146,20 @@ export default class Match3Stage {
 	}
 
 	onResize() {
-		if (this.field) {
+		if (this.field.field) {
 			this.field.onResize();
 			this.board.onResize();
 			this.animationManager.onResize();
 			this.dropManager.onResize();
+			this.score.onResize();
 		}
 
-		this.score.onResize();
 		this.story.onResize();
 	}
 
 	destroy() {
 		this.group.destroy(true);
 		this.score.destroy();
+		this.story.destroy();
 	}
 }

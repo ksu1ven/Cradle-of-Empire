@@ -7,11 +7,7 @@ export default class Match3Score {
 		this.scene = scene;
 		this.load = scene.load;
 		this.add = scene.add;
-		this.cameras = scene.cameras;
-		this.scale = scene.scale;
-		this.sound = scene.sound;
 		this.events = scene.events;
-		this.tweens = scene.tweens;
 	}
 
 	preload(scene) {
@@ -24,31 +20,29 @@ export default class Match3Score {
 		this.bindVars(scene);
 
 		this.board = board;
-		const boardBounds = this.board.getBounds();
-
-		const positionX = boardBounds.x + boardBounds.width + 35;
-		const positionY = boardBounds.y - 35;
 
 		this.group = this.add.group();
 
 		this.scorePlate = this.scene.add
-			.image(positionX, positionY, "scorePlate")
+			.image(0, 0, "scorePlate")
 			.setRotation(Math.PI / 4)
 			.setDepth(100)
-			.setScale(0.7);
+			.setOrigin(1, 0);
+
 		this.events.emit("new-object", this.scorePlate);
 
 		this.scoreText = this.add
-			.text(positionX + 4, positionY - 5, this.score, {
+			.text(0, 0, this.score, {
 				fontSize: "32px",
 				fontWeight: 600,
 				fontFamily: '"Raleway", sans-serif',
 				color: "#ffffff",
 			})
 			.setDepth(100)
-			.setOrigin(0.5, 0.5);
-
+			.setOrigin(0.5);
 		this.events.emit("new-object", this.scoreText);
+
+		this.onResize();
 
 		this.group.addMultiple([this.scorePlate, this.scoreText]);
 
@@ -65,14 +59,19 @@ export default class Match3Score {
 	onResize() {
 		const boardBounds = this.board.getBounds();
 
-		const positionX = boardBounds.x + boardBounds.width + 35;
-		const positionY = boardBounds.y - 35;
+		const scale = this.board.scale * 0.8;
+
+		const positionX = boardBounds.x + boardBounds.width + 20 * scale;
+		const positionY = boardBounds.y - 70 * scale;
 
 		this.scorePlate.setPosition(positionX, positionY);
-		this.scoreText.setPosition(positionX + 4, positionY - 5);
+		this.scorePlate.setScale(scale);
+
+		this.scoreText.setPosition(positionX - 90 * scale, positionY);
+		this.scoreText.setScale(scale * 1.5);
 	}
 
 	destroy() {
-		this.group.destroy();
+		this.group.destroy(true);
 	}
 }

@@ -72,7 +72,6 @@ export default class MainScene extends Phaser.Scene {
 		this.addEvents();
 
 		this.scale.on("resize", this.onResize, this);
-		this.background.onResize(this.scale.gameSize);
 
 		if (typeof window.playableStarted === "function") {
 			window.playableStarted();
@@ -113,6 +112,7 @@ export default class MainScene extends Phaser.Scene {
 	onResize(gameSize) {
 		this.background.onResize(gameSize);
 		this.nextButton.onResize();
+		this.whiteHand.onResize();
 
 		this.math3stage.onResize();
 		this.spineObjectStage.onResize();

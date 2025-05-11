@@ -7,9 +7,6 @@ export default class WhiteHand {
 		this.scene = scene;
 		this.load = scene.load;
 		this.add = scene.add;
-		this.cameras = scene.cameras;
-		this.scale = scene.scale;
-		this.sound = scene.sound;
 		this.anims = scene.anims;
 		this.time = scene.time;
 	}
@@ -41,9 +38,13 @@ export default class WhiteHand {
 		});
 	}
 
-	showWhiteHandAnimation(x, y) {
+	showWhiteHandAnimation() {
 		this.whiteHand = this.add
-			.sprite(x, y, "whiteHand")
+			.sprite(
+				this.nextButton.x + 150,
+				this.nextButton.y + 120,
+				"whiteHand"
+			)
 			.setScale(0.4)
 			.setDepth(2);
 		this.whiteHand.play({
@@ -66,10 +67,7 @@ export default class WhiteHand {
 		if (this.repeatHintTimer) this.repeatHintTimer.remove();
 
 		this.idleStartTimer = this.time.delayedCall(3000, () => {
-			this.showWhiteHandAnimation(
-				this.nextButton.x + 150,
-				this.nextButton.y + 120
-			);
+			this.showWhiteHandAnimation();
 			this.repeatHintTimer = this.time.addEvent({
 				delay: 5000,
 				loop: true,
@@ -81,5 +79,11 @@ export default class WhiteHand {
 				},
 			});
 		});
+	}
+
+	onResize() {
+		if (this.whiteHand) {
+			this.resetIdleTimers();
+		}
 	}
 }

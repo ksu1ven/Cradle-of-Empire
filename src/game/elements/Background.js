@@ -3,11 +3,8 @@ export default class Background {
 		this.scene = scene;
 		this.load = scene.load;
 		this.add = scene.add;
-		this.cameras = scene.cameras;
 		this.scale = scene.scale;
 		this.sound = scene.sound;
-		this.anims = scene.anims;
-		this.time = scene.time;
 	}
 
 	preload(scene) {
@@ -19,9 +16,14 @@ export default class Background {
 
 	create() {
 		this.background = this.add
-			.image(512, 384, "bg")
+			.image(0, 0, "bg")
 			.setDepth(-10)
 			.setScrollFactor(1);
+
+		this.textureWidth = this.background.width;
+		this.textureHeight = this.background.height;
+
+		this.onResize();
 
 		if (!this.sound.get("bgMusic")) {
 			const music = this.sound.add("bgMusic", {
@@ -32,15 +34,15 @@ export default class Background {
 		}
 	}
 
-	onResize(gameSize) {
-		const width = gameSize.width;
-		const height = gameSize.height;
-		const textureWidth = this.background.width;
-		const textureHeight = this.background.height;
-		const scaleX = width / textureWidth;
-		const scaleY = height / textureHeight;
+	onResize() {
+		const scaleX = this.scale.width / this.textureWidth;
+		const scaleY = this.scale.height / this.textureHeight;
+
 		const scale = Math.max(scaleX, scaleY);
 		this.background.setScale(scale);
-		this.background.setPosition(width / 2, height / 2);
+		this.background.setPosition(
+			this.scale.width / 2,
+			this.scale.height / 2
+		);
 	}
 }
