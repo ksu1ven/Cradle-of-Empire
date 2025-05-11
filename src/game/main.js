@@ -1,4 +1,5 @@
 import MainScene from "./scenes/MainScene";
+import TESTapi from "./api/test";
 import { AUTO, Game } from "phaser";
 
 const config = {
@@ -6,7 +7,7 @@ const config = {
 	width: 1024,
 	height: 768,
 	parent: "game-container",
-	backgroundColor: "#028af8",
+	backgroundColor: 0x0086b0,
 	scale: {
 		mode: Phaser.Scale.EXPAND,
 		autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -20,5 +21,7 @@ const config = {
 const StartGame = (parent) => {
 	return new Game({ ...config, parent });
 };
+
+new TESTapi();
 
 export default StartGame;

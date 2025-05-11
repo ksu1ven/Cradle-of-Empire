@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import Match3Stage from "../stages/Match3Stage";
 import SpineObjectStage from "../stages/SpineObjectStage";
 
+import Preloader from "../elements/Preloader";
 import Logo from "../elements/Logo";
 import NextButton from "../elements/NextButton";
 import WhiteHand from "../elements/WhiteHand";
@@ -27,6 +28,7 @@ export default class MainScene extends Phaser.Scene {
 		this.stageIndex = 0;
 		this.cameraClass = new Cameras();
 
+		this.preloader = new Preloader();
 		this.background = new Background();
 		this.logo = new Logo();
 		this.playButton = new PlayButton();
@@ -38,6 +40,8 @@ export default class MainScene extends Phaser.Scene {
 	}
 
 	preload() {
+		this.preloader.create(this);
+
 		this.background.preload(this);
 		this.logo.preload(this);
 		this.playButton.preload(this);
@@ -69,6 +73,10 @@ export default class MainScene extends Phaser.Scene {
 
 		this.scale.on("resize", this.onResize, this);
 		this.background.onResize(this.scale.gameSize);
+
+		if (typeof window.playableStarted === "function") {
+			window.playableStarted();
+		}
 	}
 
 	addEvents() {

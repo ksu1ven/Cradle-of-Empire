@@ -46,6 +46,7 @@ export default class NextButton {
 
 		this.button = this.add.text(0, 0, "NEXT STAGE", {
 			fontSize: "32px",
+			fontWeight: 600,
 			fontFamily: '"Raleway", sans-serif',
 			color: "#ffffff",
 			align: "center",

@@ -4,6 +4,7 @@ export default class SpineObjectStage {
 		this.volley = 5;
 		this.volleyMaxDistanceFromCenterX = 150;
 		this.volleyMaxDistanceFromCenterY = 100;
+		this.lastAngle = null;
 	}
 
 	bindVars(scene) {
@@ -72,7 +73,16 @@ export default class SpineObjectStage {
 	}
 
 	spawnFirework() {
-		const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+		let angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+
+		if (this.lastAngle && this.lastAngle < Math.PI && angle < Math.PI)
+			angle += Math.PI;
+
+		if (this.lastAngle && this.lastAngle > Math.PI && angle > Math.PI)
+			angle -= Math.PI;
+
+		this.lastAngle = angle;
+
 		const radiusX = this.volleyMaxDistanceFromCenterX;
 		const radiusY = this.volleyMaxDistanceFromCenterY;
 
@@ -109,6 +119,10 @@ export default class SpineObjectStage {
 			callback: this.spawnFirework,
 			callbackScope: this,
 		});
+
+		if (typeof window.playableFinished === "function") {
+			window.playableFinished();
+		}
 	}
 
 	onResize() {

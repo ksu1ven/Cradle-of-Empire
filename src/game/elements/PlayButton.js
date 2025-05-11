@@ -29,6 +29,10 @@ export default class PlayButton {
 
 	addEvents() {
 		this.button.on("pointerdown", () => {
+			if (typeof window.playableGoToStore === "function") {
+				window.playableGoToStore();
+			}
+
 			this.redirectToStore();
 		});
 	}
