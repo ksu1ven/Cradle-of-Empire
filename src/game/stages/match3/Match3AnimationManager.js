@@ -12,9 +12,10 @@ export default class Match3AnimationManager {
 		this.tweens = scene.tweens;
 	}
 
-	create(scene, chipSprites, group, cellSizeX, cellSizeY) {
+	create(scene, board, chipSprites, group, cellSizeX, cellSizeY) {
 		this.bindVars(scene);
 
+		this.board = board;
 		this.chipSprites = chipSprites;
 		this.group = group;
 		this.cellSizeX = cellSizeX;
@@ -139,5 +140,10 @@ export default class Match3AnimationManager {
 				this.events.emit("update-animation", false);
 			}
 		});
+	}
+
+	onResize() {
+		this.cellSizeX = (this.board.width * 0.9 - 2) / 7;
+		this.cellSizeY = (this.board.height * 0.9 - 2) / 7;
 	}
 }

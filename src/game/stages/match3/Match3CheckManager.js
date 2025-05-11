@@ -85,6 +85,10 @@ export default class Match3CheckManager {
 			...this.findLocalMatches(to),
 		];
 
+		if (matched?.length) {
+			this.events.emit("update-score", matched.length * 100);
+		}
+
 		return matched;
 	}
 
@@ -105,6 +109,10 @@ export default class Match3CheckManager {
 					}
 				}
 			}
+		}
+
+		if (matched?.length) {
+			this.events.emit("update-score", matched.length * 100);
 		}
 
 		return matched;

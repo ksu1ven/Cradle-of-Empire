@@ -1,4 +1,4 @@
-export default class Match3ChangeManager {
+export default class Match3DropManager {
 	constructor(rows = this.rows, cols = this.rows) {
 		this.rows = rows;
 		this.cols = cols;
@@ -138,5 +138,11 @@ export default class Match3ChangeManager {
 		this.events.emit("update-grid", this.grid);
 
 		return drops;
+	}
+
+	onResize() {
+		this.boardBounds = this.board.getBounds();
+		this.cellSizeX = (this.board.width * 0.9 - 2) / 7;
+		this.cellSizeY = (this.board.height * 0.9 - 2) / 7;
 	}
 }

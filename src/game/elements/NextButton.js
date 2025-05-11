@@ -37,12 +37,12 @@ export default class NextButton {
 			0,
 		];
 
-		const polygon = new Phaser.Geom.Polygon(points);
+		this.polygon = new Phaser.Geom.Polygon(points);
 
 		this.geometry = this.add.graphics({
 			fillStyle: { color: 0x0086b0 },
 		});
-		this.geometry.fillPoints(polygon.points, true);
+		this.geometry.fillPoints(this.polygon.points, true);
 
 		this.button = this.add.text(0, 0, "NEXT STAGE", {
 			fontSize: "32px",
@@ -70,6 +70,20 @@ export default class NextButton {
 		this.button.on("pointerdown", () => {
 			this.sound.play("clickSound", { volume: 1 });
 			this.events.emit("next-button-clicked");
+		});
+
+		this.button.on("pointerover", () => {
+			this.geometry.clear();
+			this.geometry.fillStyle(0xffe602, 1);
+			this.geometry.fillPoints(this.polygon.points, true);
+			this.button.setColor("#0086b0");
+		});
+
+		this.button.on("pointerout", () => {
+			this.geometry.clear();
+			this.geometry.fillStyle(0x0086b0, 1);
+			this.geometry.fillPoints(this.polygon.points, true);
+			this.button.setColor("#ffffff");
 		});
 
 		this.input.on("pointerdown", () => {

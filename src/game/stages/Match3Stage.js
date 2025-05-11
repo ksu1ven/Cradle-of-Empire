@@ -3,7 +3,8 @@ import Match3Board from "./match3/Match3Board";
 import Match3InteractionManager from "./match3/Match3InteractionManager";
 import Match3AnimationManager from "./match3/Match3AnimationManager";
 import Match3CheckManager from "./match3/Match3CheckManager";
-import Match3ChangeManager from "./match3/Match3ChangeManager";
+import Match3DropManager from "./match3/Match3DropManager";
+import Match3Score from "./match3/Match3Score";
 
 export default class Match3Stage {
 	constructor() {
@@ -17,7 +18,8 @@ export default class Match3Stage {
 		this.interactionManager = new Match3InteractionManager(7, 7);
 		this.animationManager = new Match3AnimationManager();
 		this.checkManager = new Match3CheckManager();
-		this.changeManager = new Match3ChangeManager(7, 7);
+		this.dropManager = new Match3DropManager(7, 7);
+		this.score = new Match3Score();
 	}
 
 	bindVars(scene) {
@@ -38,6 +40,7 @@ export default class Match3Stage {
 		this.load.audio("cameraSound", "/assets/sound/camera56.mp3");
 
 		this.board.preload(scene);
+		this.score.preload(scene);
 	}
 
 	createStage(scene) {
@@ -45,18 +48,16 @@ export default class Match3Stage {
 
 		this.group = this.add.group();
 
-		this.field = this.scene.add.image(
-			this.scale.width / 2,
-			this.scale.height / 2,
-			"field"
-		);
+		this.field = this.scene.add
+			.image(this.scale.width / 2, this.scale.height / 2, "field")
+			.setScale(0.9);
 		this.events.emit("new-object", this.field);
 		this.group.add(this.field);
 
 		this.grid.create(scene);
 
-		const cellSizeX = (this.field.width - 2) / 7;
-		const cellSizeY = (this.field.height - 2) / 7;
+		const cellSizeX = (this.field.width * 0.9 - 2) / 7;
+		const cellSizeY = (this.field.height * 0.9 - 2) / 7;
 		this.board.create(
 			this.scene,
 			this.grid.grid,
@@ -76,19 +77,21 @@ export default class Match3Stage {
 		);
 		this.animationManager.create(
 			this.scene,
+			this.field,
 			this.board.chipSprites,
 			this.group,
 			cellSizeX,
 			cellSizeY
 		);
 		this.checkManager.create(this.scene, this.grid.grid);
-		this.changeManager.create(
+		this.dropManager.create(
 			this.scene,
 			this.grid.grid,
 			this.field,
 			cellSizeX,
 			cellSizeY
 		);
+		this.score.create(this.scene, this.field);
 
 		this.addEvents();
 	}
@@ -103,7 +106,7 @@ export default class Match3Stage {
 			const matched = this.checkManager.checkMatch(from, to);
 			if (matched.length) {
 				this.board.playSound(true);
-				const removed = this.changeManager.removeMatches(matched);
+				const removed = this.dropManager.removeMatches(matched);
 				this.animationManager.removeChips(removed);
 			} else {
 				this.board.playSound(false);
@@ -116,7 +119,7 @@ export default class Match3Stage {
 			this.events.emit("update-sprites", chipSprites);
 
 			this.time.delayedCall(50, () => {
-				const drops = this.changeManager.dropChips();
+				const drops = this.dropManager.dropChips();
 
 				this.animationManager.animateDrop(drops).then(() => {
 					this.events.emit(
@@ -129,7 +132,7 @@ export default class Match3Stage {
 						if (newMatches.length) {
 							this.board.playSound(true);
 							const removed =
-								this.changeManager.removeMatches(newMatches);
+								this.dropManager.removeMatches(newMatches);
 							this.animationManager.removeChips(removed);
 						}
 					});
@@ -144,10 +147,15 @@ export default class Match3Stage {
 		if (this.field) {
 			this.field.setPosition(this.scale.width / 2, this.scale.height / 2);
 			this.board.onResize();
+			this.animationManager.onResize();
+			this.dropManager.onResize();
 		}
+
+		this.score.onResize();
 	}
 
 	destroy() {
 		this.group.destroy(true);
+		this.score.destroy();
 	}
 }
