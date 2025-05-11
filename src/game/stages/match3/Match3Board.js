@@ -58,8 +58,8 @@ export default class Match3Board {
 
 				const chip = this.scene.add
 					.image(positionX, positionY, `ch_${color}`)
-					.setScale(0.8)
-					.setDepth(2)
+					.setScale(this.board.scale * 0.8)
+					.setDepth(4)
 					.setInteractive({ useHandCursor: true });
 
 				this.events.emit("new-object", chip);
@@ -94,6 +94,9 @@ export default class Match3Board {
 	onResize() {
 		const boardBounds = this.board.getBounds();
 
+		this.cellSizeX = (this.board.width * this.board.scale - 2) / 7;
+		this.cellSizeY = (this.board.height * this.board.scale - 2) / 7;
+
 		for (let y = 0; y < this.rows; y++) {
 			for (let x = 0; x < this.cols; x++) {
 				const chip = this.chipSprites[y]?.[x];
@@ -103,7 +106,9 @@ export default class Match3Board {
 						boardBounds.x + x * this.cellSizeX + this.cellSizeX / 2;
 					const newY =
 						boardBounds.y + y * this.cellSizeY + this.cellSizeY / 2;
-					chip.setPosition(newX, newY);
+					chip.setPosition(newX, newY).setScale(
+						this.board.scale * 0.8
+					);
 				}
 			}
 		}

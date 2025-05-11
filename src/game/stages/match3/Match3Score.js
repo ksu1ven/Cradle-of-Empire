@@ -34,6 +34,7 @@ export default class Match3Score {
 		this.scorePlate = this.scene.add
 			.image(positionX, positionY, "scorePlate")
 			.setRotation(Math.PI / 4)
+			.setDepth(100)
 			.setScale(0.7);
 		this.events.emit("new-object", this.scorePlate);
 
@@ -44,6 +45,7 @@ export default class Match3Score {
 				fontFamily: '"Raleway", sans-serif',
 				color: "#ffffff",
 			})
+			.setDepth(100)
 			.setOrigin(0.5, 0.5);
 
 		this.events.emit("new-object", this.scoreText);
@@ -56,8 +58,6 @@ export default class Match3Score {
 	addEvents() {
 		this.events.on("update-score", (newScore) => {
 			this.score += newScore;
-
-			console.log(this.score);
 			this.scoreText.setText(this.score);
 		});
 	}

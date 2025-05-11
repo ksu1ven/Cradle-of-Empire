@@ -122,8 +122,8 @@ export default class Match3DropManager {
 						this.boardBounds.y +
 						y * this.cellSizeY +
 						this.cellSizeY / 2,
-					scale: 0.8,
-					depth: 2,
+					scale: this.board.scale * 0.8,
+					depth: 4,
 					new: true,
 				};
 
@@ -142,7 +142,7 @@ export default class Match3DropManager {
 
 	onResize() {
 		this.boardBounds = this.board.getBounds();
-		this.cellSizeX = (this.board.width * 0.9 - 2) / 7;
-		this.cellSizeY = (this.board.height * 0.9 - 2) / 7;
+		this.cellSizeX = (this.board.width * this.board.scale - 2) / 7;
+		this.cellSizeY = (this.board.height * this.board.scale - 2) / 7;
 	}
 }

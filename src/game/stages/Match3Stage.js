@@ -5,6 +5,9 @@ import Match3AnimationManager from "./match3/Match3AnimationManager";
 import Match3CheckManager from "./match3/Match3CheckManager";
 import Match3DropManager from "./match3/Match3DropManager";
 import Match3Score from "./match3/Match3Score";
+import Match3Story from "./match3/Match3Story";
+
+import Field from "../elements/Field";
 
 export default class Match3Stage {
 	constructor() {
@@ -20,6 +23,9 @@ export default class Match3Stage {
 		this.checkManager = new Match3CheckManager();
 		this.dropManager = new Match3DropManager(7, 7);
 		this.score = new Match3Score();
+		this.story = new Match3Story();
+
+		this.field = new Field();
 	}
 
 	bindVars(scene) {
@@ -36,11 +42,13 @@ export default class Match3Stage {
 	preload(scene) {
 		this.bindVars(scene);
 
-		this.load.image("field", "/assets/img/field_1_vertical.png");
 		this.load.audio("cameraSound", "/assets/sound/camera56.mp3");
 
 		this.board.preload(scene);
 		this.score.preload(scene);
+		this.story.preload(scene);
+
+		this.field.preload(scene);
 	}
 
 	createStage(scene) {
@@ -48,21 +56,20 @@ export default class Match3Stage {
 
 		this.group = this.add.group();
 
-		this.field = this.scene.add
-			.image(this.scale.width / 2, this.scale.height / 2, "field")
-			.setScale(0.9);
-		this.events.emit("new-object", this.field);
-		this.group.add(this.field);
+		this.field.create(scene, this.group);
 
 		this.grid.create(scene);
 
-		const cellSizeX = (this.field.width * 0.9 - 2) / 7;
-		const cellSizeY = (this.field.height * 0.9 - 2) / 7;
+		const cellSizeX =
+			(this.field.field.width * this.field.finalScale - 2) / 7;
+		const cellSizeY =
+			(this.field.field.height * this.field.finalScale - 2) / 7;
+
 		this.board.create(
 			this.scene,
 			this.grid.grid,
 			this.group,
-			this.field,
+			this.field.field,
 			cellSizeX,
 			cellSizeY
 		);
@@ -77,7 +84,7 @@ export default class Match3Stage {
 		);
 		this.animationManager.create(
 			this.scene,
-			this.field,
+			this.field.field,
 			this.board.chipSprites,
 			this.group,
 			cellSizeX,
@@ -87,11 +94,12 @@ export default class Match3Stage {
 		this.dropManager.create(
 			this.scene,
 			this.grid.grid,
-			this.field,
+			this.field.field,
 			cellSizeX,
 			cellSizeY
 		);
-		this.score.create(this.scene, this.field);
+		this.score.create(this.scene, this.field.field);
+		this.story.create(this.scene);
 
 		this.addEvents();
 	}
@@ -145,13 +153,14 @@ export default class Match3Stage {
 
 	onResize() {
 		if (this.field) {
-			this.field.setPosition(this.scale.width / 2, this.scale.height / 2);
+			this.field.onResize();
 			this.board.onResize();
 			this.animationManager.onResize();
 			this.dropManager.onResize();
 		}
 
 		this.score.onResize();
+		this.story.onResize();
 	}
 
 	destroy() {

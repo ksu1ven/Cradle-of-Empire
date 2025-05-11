@@ -5,6 +5,8 @@ export default class SpineObjectStage {
 		this.volleyMaxDistanceFromCenterX = 150;
 		this.volleyMaxDistanceFromCenterY = 100;
 		this.lastAngle = null;
+		this.girlWidth = 1024;
+		this.girlHeight = 1024;
 	}
 
 	bindVars(scene) {
@@ -46,14 +48,19 @@ export default class SpineObjectStage {
 
 		this.sound.play("fineSound", { volume: 1 });
 
+		const scaleX = (this.scale.width / this.girlWidth / 1.5) * 0.6;
+		const scaleY = this.scale.height / this.girlHeight / 1.5;
+
+		this.finalScale = Math.max(scaleX, scaleY) * 0.6;
+
 		this.spineObject = this.add.spine(
 			this.scale.width / 2,
-			this.scale.height / 2 + 150,
+			this.scale.height / 2 + 350 * this.finalScale,
 			"greengirl",
 			"animation",
 			true
 		);
-		this.spineObject.setScale(0.3);
+		this.spineObject.setScale(this.finalScale);
 		this.events.emit("new-object", this.spineObject);
 	}
 
@@ -87,12 +94,15 @@ export default class SpineObjectStage {
 		const radiusY = this.volleyMaxDistanceFromCenterY;
 
 		const centerX = this.scale.width / 2;
-		const centerY = this.scale.height / 2 - 100;
+		const centerY = this.scale.height / 2 - 600 * this.finalScale;
 
 		const x = centerX + Math.cos(angle) * radiusX;
 		const y = centerY + Math.sin(angle) * radiusY;
 
-		const scale = Phaser.Math.FloatBetween(0.4, 0.7);
+		const scale = Phaser.Math.FloatBetween(
+			1.5 * this.finalScale,
+			2 * this.finalScale
+		);
 
 		const sprite = this.scene.add.sprite(x, y, "firework");
 
@@ -127,9 +137,15 @@ export default class SpineObjectStage {
 
 	onResize() {
 		if (this.spineObject) {
+			const scaleX = (this.scale.width / this.girlWidth / 1.5) * 0.6;
+			const scaleY = this.scale.height / this.girlHeight / 1.5;
+
+			this.finalScale = Math.max(scaleX, scaleY) * 0.6;
+
+			this.spineObject.setScale(this.finalScale);
 			this.spineObject.setPosition(
 				this.scale.width / 2,
-				this.scale.height / 2 + 150
+				this.scale.height / 2 + 350 * this.finalScale
 			);
 		}
 	}

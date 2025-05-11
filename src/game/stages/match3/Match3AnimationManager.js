@@ -143,7 +143,7 @@ export default class Match3AnimationManager {
 	}
 
 	onResize() {
-		this.cellSizeX = (this.board.width * 0.9 - 2) / 7;
-		this.cellSizeY = (this.board.height * 0.9 - 2) / 7;
+		this.cellSizeX = (this.board.width * this.board.scale - 2) / 7;
+		this.cellSizeY = (this.board.height * this.board.scale - 2) / 7;
 	}
 }
