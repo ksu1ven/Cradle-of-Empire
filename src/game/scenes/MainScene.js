@@ -48,8 +48,24 @@ export default class MainScene extends Phaser.Scene {
 		this.nextButton.preload(this);
 		this.whiteHand.preload(this);
 
-		this.math3stage.preload(this);
-		this.spineObjectStage.preload(this);
+		this.load.once("complete", () => {
+			this.math3stage.preload(this);
+			console.log("common-assets-loaded");
+			this.load.start();
+
+			this.load.once("complete", () => {
+				console.log("match-3-loaded");
+				this.spineObjectStage.preload(this);
+				this.load.start();
+
+				this.load.on("complete", () => {
+					console.log("spin-loaded");
+					if (typeof window.playableLoaded === "function") {
+						window.playableLoaded();
+					}
+				});
+			});
+		});
 	}
 
 	create() {

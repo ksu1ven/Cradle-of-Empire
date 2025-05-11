@@ -41,10 +41,6 @@ export default class Preloader {
 			this.progressBar.destroy();
 			this.progressBox.destroy();
 			this.loadingText.destroy();
-
-			if (typeof window.playableLoaded === "function") {
-				window.playableLoaded();
-			}
 		});
 	}
 }

@@ -36,9 +36,7 @@ export default class Match3Story {
 
 		this.showStoryTextImage("help");
 
-		this.time.delayedCall(1500, () => {
-			this.buildings.create(scene, this.group, this.board);
-		});
+		this.buildings.create(scene, this.group, this.board);
 
 		this.addEvents();
 	}
